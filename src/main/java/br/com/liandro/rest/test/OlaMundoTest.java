@@ -12,11 +12,11 @@ import static org.junit.Assert.*;
 
 public class OlaMundoTest {
 
-    private final String urlBase = "http://restapi.wcaquino.me/";
+    private final String url = "http://restapi.wcaquino.me/ola";
 
     @Test
     public void testOlaMundo() {
-        Response response = request(Method.GET, urlBase + "ola");
+        Response response = request(Method.GET, url);
         assertEquals("Ola Mundo!", response.getBody().asString());
         assertEquals("O status code devera ser 200", 200, response.statusCode());
 
@@ -27,17 +27,17 @@ public class OlaMundoTest {
     @Test
     public void padroesRestAssured() {
         //Padrão 1 - Verbose
-        Response response = request(Method.GET, urlBase + "ola");
+        Response response = request(Method.GET, url);
         ValidatableResponse validacao = response.then();
         validacao.statusCode(200);
 
         //Padrão 2 - Clean
-        RestAssured.get(urlBase + "ola").then().statusCode(200);
+        RestAssured.get(url).then().statusCode(200);
 
         //Padrão 3 - BDD
         given()
             .when()
-                .get(urlBase + "ola")
+                .get(url)
             .then()
                 .assertThat().statusCode(200);
     }
@@ -53,7 +53,7 @@ public class OlaMundoTest {
     public void validarBody() {
         given()
             .when()
-                .get(urlBase + "ola")
+                .get(url)
             .then()
                 .assertThat().statusCode(200)
                 .body(is("Ola Mundo!"));
