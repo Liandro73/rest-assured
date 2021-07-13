@@ -9,7 +9,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Locale;
 
 import static io.restassured.RestAssured.*;
 import static org.hamcrest.Matchers.*;
