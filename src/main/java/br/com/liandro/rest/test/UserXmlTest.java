@@ -1,7 +1,14 @@
 package br.com.liandro.rest.test;
 
+import io.restassured.RestAssured;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.builder.ResponseSpecBuilder;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.internal.path.xml.NodeImpl;
+import io.restassured.specification.RequestSpecification;
+import io.restassured.specification.ResponseSpecification;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -11,14 +18,34 @@ import static org.hamcrest.Matchers.*;
 
 public class UserXmlTest {
 
+    public static RequestSpecification requestSpecification;
+    public static ResponseSpecification responseSpecification;
+
+    @BeforeClass
+    public static void setUp() {
+        RestAssured.baseURI = "https://restapi.wcaquino.me";
+//        RestAssured.port = 80;
+//        RestAssured.basePath = "";
+
+        RequestSpecBuilder requestSpecBuilder = new RequestSpecBuilder();
+        requestSpecBuilder.log(LogDetail.ALL);
+        requestSpecification = requestSpecBuilder.build();
+
+        ResponseSpecBuilder responseSpecBuilder = new ResponseSpecBuilder();
+        responseSpecBuilder.expectStatusCode(200);
+        responseSpecification = responseSpecBuilder.build();
+
+        RestAssured.requestSpecification = requestSpecification;
+        RestAssured.responseSpecification = responseSpecification;
+
+    }
+
     @Test
     public void devoTrabalharComXML() {
         given()
             .when()
-                .get("https://restapi.wcaquino.me/usersXML/3")
+                .get("usersXML/3")
             .then()
-                .statusCode(200)
-
                 .rootPath("user")
                 .body("name", is("Ana Julia"))
                 .body("@id", is("3"))
@@ -38,10 +65,8 @@ public class UserXmlTest {
     public void devoFazerPesquisasAvancadasComXML() {
         given()
             .when()
-                .get("https://restapi.wcaquino.me/usersXML")
+                .get("/usersXML")
             .then()
-                .statusCode(200)
-
                 .rootPath("users.user")
                 .body("size()", is(3))
                 .body("findAll{it.age.toInteger() <= 25}.size()", is(2))
@@ -58,9 +83,8 @@ public class UserXmlTest {
     public void devoFazerPesquisasAvancadasComXMLEJava() {
         ArrayList<NodeImpl> nomes = given()
             .when()
-                .get("https://restapi.wcaquino.me/usersXML")
+                .get("/usersXML")
             .then()
-                .statusCode(200)
                 .extract().path("users.user.name.findAll{it.toString().contains('n')}")
         ;
         Assert.assertEquals(2, nomes.size());
@@ -72,9 +96,8 @@ public class UserXmlTest {
     public void devoFazerPesquisasAvancadasComXPath() {
         given()
             .when()
-                .get("https://restapi.wcaquino.me/usersXML")
+                .get("/usersXML")
             .then()
-                .statusCode(200)
                 .body(hasXPath("count(/users/user)", is("3")))
                 .body(hasXPath("/users/user[@id = '1']"))
                 .body(hasXPath("//user[@id = '2']"))
