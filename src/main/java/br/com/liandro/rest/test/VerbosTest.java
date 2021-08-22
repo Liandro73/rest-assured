@@ -47,14 +47,34 @@ public class VerbosTest {
                 .log().all()
                 .contentType(ContentType.XML)
                 .body("<user><name>Jose</name><age>50</age></user>")
-                .when()
+            .when()
                 .post("https://restapi.wcaquino.me/usersXML")
-                .then()
+            .then()
                 .log().all()
                 .statusCode(201)
                 .body("user.@id", is(notNullValue()))
                 .body("user.name", is("Jose"))
                 .body("user.age", is("50"))
+        ;
+    }
+
+    @Test
+    public void deveAlterarUsuario() {
+        given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body("{\"name\": \"Usuario alterado\", \"age\": 73}")
+                .pathParam("entidade", "users")
+                .pathParam("userId", 1)
+            .when()
+                .put("https://restapi.wcaquino.me/{entidade}/{userId}")
+            .then()
+                .log().all()
+                .statusCode(200)
+                .body("id", is(1))
+                .body("name", is("Usuario alterado"))
+                .body("age", is(73))
+                .body("salary", is(1234.5678f))
         ;
     }
 
