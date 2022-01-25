@@ -1,7 +1,11 @@
 package br.com.liandro.rest.test;
 
 import io.restassured.http.ContentType;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
 import static io.restassured.RestAssured.given;
@@ -23,6 +27,67 @@ public class VerbosTest {
                 .body("name", is("Jose"))
                 .body("age", is(50))
         ;
+    }
+
+    @Test
+    public void deveSalvarUsuarioUtilizandoMap() {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("name", "Usuario via map");
+        params.put("age", 25);
+
+        given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(params)
+            .when()
+                .post("https://restapi.wcaquino.me/users")
+            .then()
+                .log().all()
+                .statusCode(201)
+                .body("id", is(notNullValue()))
+                .body("name", is("Usuario via map"))
+                .body("age", is(25))
+        ;
+    }
+
+    @Test
+    public void deveSalvarUsuarioUtilizandoObjeto() {
+        User user = new User("Usuario via objeto", 35);
+
+        given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(user)
+            .when()
+                .post("https://restapi.wcaquino.me/users")
+            .then()
+                .log().all()
+                .statusCode(201)
+                .body("id", is(notNullValue()))
+                .body("name", is("Usuario via objeto"))
+                .body("age", is(35))
+        ;
+    }
+
+    @Test
+    public void deveDeserializarObjetoAoSalvarUsuario() {
+        User user = new User("Usuario deserializado", 35);
+
+        User usuarioInserido = given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(user)
+            .when()
+                .post("https://restapi.wcaquino.me/users")
+            .then()
+                .log().all()
+                .statusCode(201)
+                .extract().body().as(User.class)
+        ;
+
+        Assert.assertThat(usuarioInserido.getId(), notNullValue());
+        Assert.assertEquals("Usuario deserializado", usuarioInserido.getName());
+        Assert.assertThat(usuarioInserido.getAge(), is(35));
     }
 
     @Test
@@ -56,6 +121,47 @@ public class VerbosTest {
                 .body("user.name", is("Jose"))
                 .body("user.age", is("50"))
         ;
+    }
+
+    @Test
+    public void deveSalvarUsuarioViaXMLUtilizandoObjeto() {
+        User user = new User("Usuario XML", 40);
+
+        given()
+                .log().all()
+                .contentType(ContentType.XML)
+                .body(user)
+            .when()
+                .post("https://restapi.wcaquino.me/usersXML")
+            .then()
+                .log().all()
+                .statusCode(201)
+                .body("user.@id", is(notNullValue()))
+                .body("user.name", is("Usuario XML"))
+                .body("user.age", is("40"))
+        ;
+    }
+
+    @Test
+    public void deveDeserializarXmlAoSalvarUsuario() {
+        User user = new User("Usuario deserializado XML", 40);
+
+        User usuarioInseridoXml = given()
+                .log().all()
+                .contentType(ContentType.XML)
+                .body(user)
+            .when()
+                .post("https://restapi.wcaquino.me/usersXML")
+            .then()
+                .log().all()
+                .statusCode(201)
+                .extract().body().as(User.class)
+        ;
+
+        Assert.assertThat(usuarioInseridoXml.getId(), notNullValue());
+        Assert.assertEquals("Usuario deserializado XML", usuarioInseridoXml.getName());
+        Assert.assertThat(usuarioInseridoXml.getAge(), is(40));
+        Assert.assertThat(usuarioInseridoXml.getSalary(), nullValue());
     }
 
     @Test
