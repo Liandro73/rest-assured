@@ -1,13 +1,12 @@
 package br.com.liandro.rest.test;
 
 import io.restassured.http.ContentType;
-import org.hamcrest.xml.HasXPath;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.*;
 import static io.restassured.RestAssured.given;
 
-public class Html {
+public class HtmlTest {
 
     @Test
     public void deveFazerBuscasComHtml() {
